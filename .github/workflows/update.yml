@@ -28,6 +28,7 @@ jobs:
           cp -r public -T deploy
           cp db.json -T deploy/db.json
           cd deploy
+          rm -rf *
           git checkout HEAD -- CNAME
           git add -A
           time=`date "+%Y-%m-%d %H:%M:%S"`
