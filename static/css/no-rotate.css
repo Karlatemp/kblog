@@ -1,9 +1,0 @@
-.avatar-img img:hover,
-#vcomment .vimg:hover,
-#waline-wrap .vuser:hover {
-    -webkit-transform: rotate(0) !important;
-    -moz-transform   : rotate(0) !important;
-    -o-transform     : rotate(0) !important;
-    -ms-transform    : rotate(0) !important;
-    transform        : rotate(0) !important;
-}
