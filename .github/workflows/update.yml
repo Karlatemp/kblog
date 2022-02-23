@@ -22,13 +22,17 @@ jobs:
       - env:
           TZ: Asia/Shanghai
         run: |
-          cp deploy/db.json -T db.json
+          if [ -f "deploy/db.json" ]; then
+            cp deploy/db.json -T db.json
+          fi
           npm install
           npm run build
+          cd deploy
+          rm -rf *
+          cd ..
           cp -r public -T deploy
           cp db.json -T deploy/db.json
           cd deploy
-          rm -rf *
           git checkout HEAD -- CNAME
           git add -A
           time=`date "+%Y-%m-%d %H:%M:%S"`
