@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>GitHub PullRequest 自动审核合并 | Karlatemps' Blog</title><meta name="keywords" content="github,pr,review"><meta name="author" content="Karlatemp"><meta name="copyright" content="Karlatemp"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="众所周知, github actions 可以完成很多自动化任务, 比如代码持续CI, 版本发布自动化, new issue 内容检查等. 当然，github actions 也可以用作 PR 自动审查合并, 不过, 要完成这些需要一些额外的配置..  首先需要知道的是, on: pull_request 的 workflow 是只有 readonly 的权限的, 这也就意味着通过 on: pul">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GitHub PullRequest 自动审核合并">
+<meta property="og:url" content="https://kblog.kasukusakura.com/p/gh/autoreview/">
+<meta property="og:site_name" content="Karlatemps&#39; Blog">
+<meta property="og:description" content="众所周知, github actions 可以完成很多自动化任务, 比如代码持续CI, 版本发布自动化, new issue 内容检查等. 当然，github actions 也可以用作 PR 自动审查合并, 不过, 要完成这些需要一些额外的配置..  首先需要知道的是, on: pull_request 的 workflow 是只有 readonly 的权限的, 这也就意味着通过 on: pul">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<meta property="article:published_time" content="2022-02-23T14:07:18.638Z">
+<meta property="article:modified_time" content="2022-02-23T14:07:18.638Z">
+<meta property="article:author" content="Karlatemp">
+<meta property="article:tag" content="github">
+<meta property="article:tag" content="pr">
+<meta property="article:tag" content="review">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://kblog.kasukusakura.com/p/gh/autoreview/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'GitHub PullRequest 自动审核合并',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2022-02-23 22:07:18'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/static/css/no-rotate.css"><meta name="generator" content="Hexo 6.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://gravatar.loli.net/avatar/971ee2147fd0a5f06eb3b390700519db?d=mp&amp;v=1.3.10" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">2</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Karlatemps' Blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">GitHub PullRequest 自动审核合并</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-02-23T14:07:18.638Z" title="Created 2022-02-23 22:07:18">2022-02-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-02-23T14:07:18.638Z" title="Updated 2022-02-23 22:07:18">2022-02-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/github/">github</a></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>众所周知, github actions 可以完成很多自动化任务, 比如代码持续CI, 版本发布自动化, new issue 内容检查等.</p>
+<p>当然，github actions 也可以用作 PR 自动审查合并, 不过, 要完成这些需要一些额外的配置..</p>
+<hr>
+<p>首先需要知道的是, <code>on: pull_request</code> 的 workflow 是只有 <code>readonly</code> 的权限的, 这也就意味着通过 <code>on: pull_request</code> 发起的 workflow 除了读取已公开的内容之外什么都干不了. 包括访问 <code>$&#123;&#123; secrets.XXXX &#125;&#125;</code> 也是不被允许的</p>
+<p>需要完成自动合并, 需要更高权限(也意味着更危险的) workflow, <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#pull_request_target">pull_request_target</a></p>
+<p><code>pull_request_target</code> 与 <code>pull_request</code> 的用法基本一致, 但是主要有以下的区别</p>
+<p><code>actions/checkout@v2</code> 会签出到被 PR 的分支(也就是源仓库的内容), 而不是经过 PR 修改后的内容</p>
+<p><code>pull_request_target</code> 拥有 write 权限, 可以写入源仓库, 访问 <code>$&#123;&#123; secrets.XXX &#125;&#125;</code> (这是 <code>pull_request</code> 所不允许的)</p>
+<hr>
+<p>知道以上的主要区别之后就可以编写 PR 自动审查了</p>
+<p>首先需要获取源仓库的内容 (当然绝对不可以直接 checkout!!!)</p>
+<p>可以选择在当前目录来获取修改，或者创建一个新文件夹来获取修改</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Way 1</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">uses:</span> <span class="string">actions/checkout@v2</span></span><br><span class="line">  <span class="attr">with:</span></span><br><span class="line">    <span class="attr">ref:</span> <span class="string">pull/$&#123;&#123;</span> <span class="string">github.event.pull_request.number</span> <span class="string">&#125;&#125;/head</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">the_pr</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Way 2</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">run:</span> <span class="string">git</span> <span class="string">fetch</span> <span class="string">origin</span> <span class="string">pull/$PR_NUM/head:THE_PR</span></span><br><span class="line">  <span class="attr">env:</span></span><br><span class="line">    <span class="attr">PR_NUM:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.event.pull_request.number</span> <span class="string">&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后是提取该 PR 的修改</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BASE_SHA: $&#123;&#123; github.event.pull_request.base.sha &#125;&#125;</span><br><span class="line"></span><br><span class="line">git rev-list --count &quot;$BASE_SHA..THE_PR&quot; &gt; tmp/count</span><br><span class="line">cat tmp/count</span><br><span class="line">git --no-pager diff &quot;$BASE_SHA..THE_PR&quot; --no-color --output tmp/change-diff</span><br><span class="line">git --no-pager diff &quot;$BASE_SHA..THE_PR&quot; --name-only --output tmp/name-changed</span><br></pre></td></tr></table></figure>
+
+<p>此时</p>
+<ul>
+<li><code>tmp/name-changed</code> 存储着该 PR 修改的全部文件的文件路径</li>
+<li><code>tmp/change-diff</code> 则为 PR 与 base 的 diff 文件</li>
+<li><code>tmp/count</code> 为一个数字, 该数字代表 base 与 pr 直接相差的 commit 数量</li>
+</ul>
+<hr>
+<p>在进行一系列 PR 审核之后, 需要将审核结果返回出去 (<code>Merge</code> 或者 <code>Reject(Request change)</code>)</p>
+<p>需要用到的两个 REST API 为 <a target="_blank" rel="noopener" href="https://docs.github.com/en/rest/reference/pulls#create-a-review-for-a-pull-request">Create a review for a pull request</a>, <a target="_blank" rel="noopener" href="https://docs.github.com/en/rest/reference/pulls#merge-a-pull-request">Merge a pull request</a></p>
+<p>通过 <code>Create a review for a pull request</code> 可以对一个 PR 进行自动审查, 可以是 <code>Approve</code> 或者 <code>Reject(Request changes)</code>, 亦或者只是简单的评论 <code>Comment</code></p>
+<p>然后就可以通过 <code>Merge a pull request</code> 完成全自动 PR 合并了, 唯一需要给定的参数 <code>sha</code> 为 PullRequest 的最后一个 commit 的 id, 可以通过执行 <code>git rev-parse THE_PR</code> 获得该参数的值</p>
+<hr>
+<p>额外话: 使用 <code>$&#123;&#123; secrets.GITHUB_TOKEN &#125;&#125;</code> 合并后, 不会触发 workflow <code>on: push</code><br>如果需要 merge commit 也执行 <code>on: push</code> 的, 请使用 <code>$&#123;&#123; secrets.PR_REVIEWER_TOKEN &#125;&#125;</code> 代替 <code>GITHUB_TOKEN</code></p>
+<hr>
+<p>参考与应用</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/project-mirai/mirai-repo-mirror/blob/master/.github/workflows/auto-review-and-merge.yml">auto-review-and-merge.yml</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/project-mirai/mirai-repo-mirror/blob/master/.script/check-pr.js">check-pr.js</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Karlatemp</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://kblog.kasukusakura.com/p/gh/autoreview/">https://kblog.kasukusakura.com/p/gh/autoreview/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/github/">github</a><a class="post-meta__tags" href="/tags/pr/">pr</a><a class="post-meta__tags" href="/tags/review/">review</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/p/hello-world/"><img class="prev-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Hello~</div></div></a></div><div class="next-post pull-right"><a href="/p/jvm/dynmodule/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Java 动态模块系统 | Java dynamic module system</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://gravatar.loli.net/avatar/971ee2147fd0a5f06eb3b390700519db?d=mp&amp;v=1.3.10" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Karlatemp</div><div class="author-info__description">¿</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">4</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">2</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Karlatemp"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/hello-world/" title="Hello~">Hello~</a><time datetime="2022-02-23T14:07:18.638Z" title="Created 2022-02-23 22:07:18">2022-02-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/gh/autoreview/" title="GitHub PullRequest 自动审核合并">GitHub PullRequest 自动审核合并</a><time datetime="2022-02-23T14:07:18.638Z" title="Created 2022-02-23 22:07:18">2022-02-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/jvm/dynmodule/" title="Java 动态模块系统 | Java dynamic module system">Java 动态模块系统 | Java dynamic module system</a><time datetime="2022-02-23T14:07:18.638Z" title="Created 2022-02-23 22:07:18">2022-02-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/jvm-root/unsafe/" title="JVM 权限逃逸技术">JVM 权限逃逸技术</a><time datetime="2022-02-23T14:07:18.638Z" title="Created 2022-02-23 22:07:18">2022-02-23</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2017 - 2022 By Karlatemp</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script></div></body></html>
