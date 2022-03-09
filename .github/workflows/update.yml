@@ -19,15 +19,19 @@ jobs:
         with:
           ref: gh-pages
           path: "deploy"
-      - env:
-          TZ: Asia/Shanghai
+      - name: Prepare env
         run: |
           if [ -f "deploy/db.json" ]; then
             cp deploy/db.json -T db.json
           fi
           npm install
           sh shell-script/patch-theme.sh
-          npm run build
+      - name: render
+        run: npm run build
+      - name: Deploy
+        env:
+          TZ: Asia/Shanghai
+        run: |
           cd deploy
           rm -rf *
           cd ..
