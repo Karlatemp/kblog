@@ -73,7 +73,7 @@ katex:
 # --------------------------------------
 
 # Favicon（網站圖標）
-favicon: /img/favicon.png
+favicon: /static/imgs/favicon.png
 
 # Avatar (頭像)
 avatar:
@@ -131,7 +131,7 @@ error_img:
 error_404:
   enable: false
   subtitle: 'Page Not Found'
-  background: https://i.loli.net/2020/05/19/aKOcLiyPl2JQdFD.png
+  background: /img/404.jpg
 
 post_meta:
   page: # Home Page

@@ -26,6 +26,7 @@ jobs:
             cp deploy/db.json -T db.json
           fi
           npm install
+          sh shell-script/patch-theme.sh
           npm run build
           cd deploy
           rm -rf *
