@@ -1,7 +1,4 @@
-
-console.log("Hi!");
-
-hexo.extend.generator.register('hello', function (locals) {
+hexo.extend.generator.register('k/404', function (locals) {
     return {
         path: '404.html',
         layout: ['kar/404'],

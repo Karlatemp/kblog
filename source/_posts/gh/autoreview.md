@@ -2,6 +2,7 @@
 title: GitHub PullRequest 自动审核合并
 categories: [github]
 tags: [github, pr, review]
+date: 2022-02-23 00:01:00
 ---
 
 
