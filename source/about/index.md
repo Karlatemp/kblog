@@ -17,7 +17,7 @@ aside: false
 
 ## Contact
 
-E-mail: <karlatemp@vip.qq.com> / <k@mamoe.net>
+E-mail: <kar@kasukusakura.com> / <k@mamoe.net> / <karlatemp@vip.qq.com>
 
 Telegram: [Karlatemp](https://t.me/Karlatemp)
 
