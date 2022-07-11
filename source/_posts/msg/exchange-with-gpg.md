@@ -33,7 +33,7 @@ tags: [gpg, msg-exchange]
 >
 > 比如, 如果你想给 Karlatemp 交换私密消息, 你可以通过打开 `https://github.com/Karlatemp.gpg` 来得到 Karlatemp 的 GPG 公钥
 
-> 可以执行 `gpg --list-keys` 来查看需要发送的目标的邮箱 / keyid
+> 可以执行 `gpg --list-public-keys` 来查看需要发送的目标的邮箱 / keyid
 
 ## 加密要发送的内容
 
