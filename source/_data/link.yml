@@ -1,8 +1,8 @@
 - class_name: 友情链接
   class_desc: "友情链接"
   link_list:
-    - name: 暂无
-      link: ""
-      avatar: ""
-      descr: 暂无
+    - name: 鈴木観理
+      link: "https://blog.kanri.top/"
+      avatar: "https://avatars.githubusercontent.com/u/63801131?v=4"
+      descr: "姐姐!"
 
