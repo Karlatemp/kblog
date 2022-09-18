@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Gradle with JDK18+ 中文乱码配置 | Karlatemps' Blog</title><meta name="keywords" content="jvm,gradle"><meta name="author" content="Karlatemp"><meta name="copyright" content="Karlatemp"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="在 Java18 之后, 当使用 System.out.println() 输出中文的时候, 不管源码是不是以 utf8 编译,无论执行的代码是否是预编译的代码, 只能得到一个结果: 乱码 在经历了长时间的更新换代之后, 终于, Gradle with JDK 18+, 又又又又又乱码了! 分析我首先想到了是不是需要额外加一个 vm option -Dfile.encoding&#x3D;UTF-8, 然后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gradle with JDK18+ 中文乱码配置">
+<meta property="og:url" content="https://kblog.kasukusakura.com/p/misc/gradle-jdk18-enoding/">
+<meta property="og:site_name" content="Karlatemps&#39; Blog">
+<meta property="og:description" content="在 Java18 之后, 当使用 System.out.println() 输出中文的时候, 不管源码是不是以 utf8 编译,无论执行的代码是否是预编译的代码, 只能得到一个结果: 乱码 在经历了长时间的更新换代之后, 终于, Gradle with JDK 18+, 又又又又又乱码了! 分析我首先想到了是不是需要额外加一个 vm option -Dfile.encoding&#x3D;UTF-8, 然后">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<meta property="article:published_time" content="2022-09-18T15:03:00.000Z">
+<meta property="article:modified_time" content="2022-09-18T15:48:03.815Z">
+<meta property="article:author" content="Karlatemp">
+<meta property="article:tag" content="jvm">
+<meta property="article:tag" content="gradle">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><link rel="shortcut icon" href="/static/imgs/favicon.png"><link rel="canonical" href="https://kblog.kasukusakura.com/p/misc/gradle-jdk18-enoding/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Gradle with JDK18+ 中文乱码配置',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-09-18 23:48:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/static/css/no-rotate.css"><meta name="generator" content="Hexo 6.0.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://gravatar.loli.net/avatar/971ee2147fd0a5f06eb3b390700519db?d=mp&amp;v=1.3.10" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">12</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Karlatemps' Blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Gradle with JDK18+ 中文乱码配置</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-09-18T15:03:00.000Z" title="Created 2022-09-18 23:03:00">2022-09-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-09-18T15:48:03.815Z" title="Updated 2022-09-18 23:48:03">2022-09-18</time></span></div><div class="meta-secondline"></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在 Java18 之后, 当使用 <code>System.out.println()</code> 输出中文的时候, 不管源码是不是以 utf8 编译,<br>无论执行的代码是否是预编译的代码, 只能得到一个结果: 乱码</p>
+<p>在经历了长时间的更新换代之后, 终于, <code>Gradle with JDK 18+</code>, 又又又又又乱码了!</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>我首先想到了是不是需要额外加一个 vm option <code>-Dfile.encoding=UTF-8</code>, 然后我在 IDEA 里的运行任务加上了这个参数…. 并没有什么效果</p>
+<p>依然得到的还是乱码….</p>
+<p>后面又去检查了 <code>gradle.properties</code>, <code>idea64.vmoptions</code>, 都是附带 <code>-Dfile.encoding=UTF8</code> 的… 是什么原因呢?</p>
+<p>然后我突然想起来, 在 Gradle 项目中, 在 IDEA 里运行 java main 目标其实是由 Gradle 启动的而不是由 IDEA 直接启动的, 并且 Gradle 是有运行日志的, 然后我直接就打开了 Gradle 目录并找到了日志</p>
+<blockquote>
+<ul>
+<li>Gradle 的日志位于 <code>$GRADLE_USER_HOME/daemon/$version/daemon-$pid.out.log</code></li>
+<li>与 Kotlin 项目不同的是, <code>Gradle with Java</code> 的 main 启动是由 Gradle 启动的, 而 Kotlin main 是直接由 IDEA 启动的</li>
+</ul>
+</blockquote>
+<p>翻了一下日志, 很快就找到了上次执行程序的输出</p>
+<p>定位到日志点之后, 使用别的编码再重新打开 (UTF8, GBK, GB 2312…), 都是乱码.</p>
+<p>于是推测 <code>Java18 main -&gt; Gradle</code> 的时候输出格式已经乱掉了</p>
+<p>于是有了一个大胆的推测:</p>
+<blockquote>
+<p>编译之后的字节码文件是没问题的, 而是执行的时候输出到控制台的时候就乱码了</p>
+</blockquote>
+<p>然后我再用 IDEA 写了一个只有 <code>println</code> 的类与方法, 然后直接使用 <code>$JDK18_HOME/bin/java.exe</code> 执行, 在 <code>cmd.exe</code> 得到的结果是正常的中文</p>
+<p>这就成功证实了是 <code>Java18 main -&gt; Gradle</code> 的时候出现了问题</p>
+<p>最后翻阅 <code>src.zip/java.bases/java/lang/System.java</code>, 分析了一下 <code>System.out</code> 的初始化流程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// System.java</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Initialize the system class.  Called after thread initialization.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">initPhase1</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// ......</span></span><br><span class="line"></span><br><span class="line">        <span class="type">FileInputStream</span> <span class="variable">fdIn</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(FileDescriptor.in);</span><br><span class="line">        <span class="type">FileOutputStream</span> <span class="variable">fdOut</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(FileDescriptor.out);</span><br><span class="line">        <span class="type">FileOutputStream</span> <span class="variable">fdErr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(FileDescriptor.err);</span><br><span class="line">        setIn0(<span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(fdIn));</span><br><span class="line">        <span class="comment">// sun.stdout/err.encoding are set when the VM is associated with the terminal,</span></span><br><span class="line">        <span class="comment">// thus they are equivalent to Console.charset(), otherwise the encoding</span></span><br><span class="line">        <span class="comment">// defaults to native.encoding</span></span><br><span class="line">        setOut0(newPrintStream(fdOut, props.getProperty(<span class="string">&quot;sun.stdout.encoding&quot;</span>, StaticProperty.nativeEncoding())));</span><br><span class="line">        setErr0(newPrintStream(fdErr, props.getProperty(<span class="string">&quot;sun.stderr.encoding&quot;</span>, StaticProperty.nativeEncoding())));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ......</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// StaticProperty.java</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String NATIVE_ENCODING;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        NATIVE_ENCODING = getProperty(props, <span class="string">&quot;native.encoding&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@return</span> the &#123;<span class="doctag">@code</span> native.encoding&#125; system property&#125;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;strong&gt;&#123;<span class="doctag">@link</span> SecurityManager#checkPropertyAccess&#125; is NOT checked</span></span><br><span class="line"><span class="comment">     * in this method. The caller of this method should take care to ensure</span></span><br><span class="line"><span class="comment">     * that the returned property is not made accessible to untrusted code.&lt;/strong&gt;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">nativeEncoding</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> NATIVE_ENCODING;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最后分析得 Java 根据 <code>sun.stdout.encoding</code>, <code>sun.stderr.encoding</code>, <code>native.encoding</code> 确定 stdout 编码</p>
+<p>然后在 IDEA 里把这三个值打印出来</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RwB</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;sun.stdout.encoding = &quot;</span> + System.getProperty(<span class="string">&quot;sun.stdout.encoding&quot;</span>));</span><br><span class="line">        System.out.println(<span class="string">&quot;sun.stderr.encoding = &quot;</span> + System.getProperty(<span class="string">&quot;sun.stderr.encoding&quot;</span>));</span><br><span class="line">        System.out.println(<span class="string">&quot;    native.encoding = &quot;</span> + System.getProperty(<span class="string">&quot;native.encoding&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sun.stdout.encoding = null</span><br><span class="line">sun.stderr.encoding = null</span><br><span class="line">    native.encoding = GBK</span><br></pre></td></tr></table></figure>
+
+<h2 id="Patching"><a href="#Patching" class="headerlink" title="Patching!"></a>Patching!</h2><p>首先我尝试了在 <code>build.gradle</code> 中添加了以下内容</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">tasks.withType(JavaExec) &#123; JavaExec task -&gt;</span><br><span class="line">    task.doFirst &#123; println <span class="string">&quot;Hi&quot;</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后运行, 居然看到了不在主程序里的 <code>Hi</code>!</p>
+<p>这说明 IDEA 运行 Java 程序是通过动态创建一个 <code>JavaExec</code> 任务来启动一个程序的</p>
+<p>然后将代码改成</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tasks.withType(JavaExec) &#123; JavaExec task -&gt;</span><br><span class="line">    task.jvmArgs += [<span class="string">&#x27;-Dsun.stdout.encoding=utf8&#x27;</span>]</span><br><span class="line">    task.jvmArgs += [<span class="string">&#x27;-Dsun.stderr.encoding=utf8&#x27;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再次运行, 中文成功显示!!!!!</p>
+<h2 id="Final-Patch"><a href="#Final-Patch" class="headerlink" title="Final Patch!!!"></a>Final Patch!!!</h2><p>但是总不能每个 Gradle 项目都加吧, 于是去搜索相关的资料, 找到 Gradle 支持全局的 <code>Initialization Scripts</code> 的</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://docs.gradle.org/current/userguide/init_scripts.html">https://docs.gradle.org/current/userguide/init_scripts.html</a></p>
+</blockquote>
+<p>只需要在 <code>$GRADLE_USER_HOME/init.d</code> 创建一个新的 <code>Initialization Script</code> 即可</p>
+<blockquote>
+<p>此处我创建了一个名为 <code>k-javaexec-out-as-utf8.init.gradle</code> 的 init script</p>
+</blockquote>
+<blockquote>
+<p>Tip: Using an init script (From Gradle)</p>
+<ul>
+<li>Put a file called init.gradle (or init.gradle.kts for Kotlin) in the <code>USER_HOME/.gradle/</code> directory.</li>
+<li>Put a file that ends with .gradle (or .init.gradle.kts for Kotlin) in the <code>USER_HOME/.gradle/init.d/</code> directory.</li>
+<li>Put a file that ends with .gradle (or .init.gradle.kts for Kotlin) in the <code>GRADLE_HOME/init.d/</code> directory</li>
+</ul>
+</blockquote>
+<p>然后写入</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">allprojects &#123;</span><br><span class="line">    tasks.withType(JavaExec) &#123; JavaExec task -&gt;</span><br><span class="line">        task.jvmArgs += [<span class="string">&#x27;-Dsun.stdout.encoding=utf8&#x27;</span>]</span><br><span class="line">        task.jvmArgs += [<span class="string">&#x27;-Dsun.stderr.encoding=utf8&#x27;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>一切大功告成!</p>
+<hr>
+<h2 id="附录-如何得出-Java18-main-是-Gradle-启动的"><a href="#附录-如何得出-Java18-main-是-Gradle-启动的" class="headerlink" title="附录 - 如何得出 Java18 main 是 Gradle 启动的"></a>附录 - 如何得出 Java18 main 是 Gradle 启动的</h2><p>打开 <code>Process Explorer</code>, 找到主程序, 可以看到 <code>parent process</code> 是 <code>Gradle Daemon</code></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Karlatemp</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://kblog.kasukusakura.com/p/misc/gradle-jdk18-enoding/">https://kblog.kasukusakura.com/p/misc/gradle-jdk18-enoding/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jvm/">jvm</a><a class="post-meta__tags" href="/tags/gradle/">gradle</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/p/misc/windws-sshd/"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Windows SSHD setup | Windows SSHD 配置</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/p/jvm/dynmodule/" title="Java 动态模块系统 | Java dynamic module system"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-23</div><div class="title">Java 动态模块系统 | Java dynamic module system</div></div></a></div><div><a href="/p/jvm-root/unsafe/" title="JVM 权限逃逸技术"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-23</div><div class="title">JVM 权限逃逸技术</div></div></a></div><div><a href="/p/jvm/jdk-foreign/" title="使用 jdk.foreign 访问本机代码"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-03-12</div><div class="title">使用 jdk.foreign 访问本机代码</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://gravatar.loli.net/avatar/971ee2147fd0a5f06eb3b390700519db?d=mp&amp;v=1.3.10" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Karlatemp</div><div class="author-info__description">¿</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">9</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">12</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Karlatemp"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Patching"><span class="toc-number">2.</span> <span class="toc-text">Patching!</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Final-Patch"><span class="toc-number">3.</span> <span class="toc-text">Final Patch!!!</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%95-%E5%A6%82%E4%BD%95%E5%BE%97%E5%87%BA-Java18-main-%E6%98%AF-Gradle-%E5%90%AF%E5%8A%A8%E7%9A%84"><span class="toc-number">4.</span> <span class="toc-text">附录 - 如何得出 Java18 main 是 Gradle 启动的</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/misc/gradle-jdk18-enoding/" title="Gradle with JDK18+ 中文乱码配置">Gradle with JDK18+ 中文乱码配置</a><time datetime="2022-09-18T15:03:00.000Z" title="Created 2022-09-18 23:03:00">2022-09-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/misc/windws-sshd/" title="Windows SSHD setup | Windows SSHD 配置">Windows SSHD setup | Windows SSHD 配置</a><time datetime="2022-07-10T07:30:00.000Z" title="Created 2022-07-10 15:30:00">2022-07-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/msg/exchange-with-gpg/" title="使用 GnuPG 在公开平台交换数据">使用 GnuPG 在公开平台交换数据</a><time datetime="2022-07-10T07:00:00.000Z" title="Created 2022-07-10 15:00:00">2022-07-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/tls/sub-cert-with-ca/" title="使用自定义 CA 生成 HTTPS 证书">使用自定义 CA 生成 HTTPS 证书</a><time datetime="2022-06-01T16:00:01.000Z" title="Created 2022-06-02 00:00:01">2022-06-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/p/jvm/jdk-foreign/" title="使用 jdk.foreign 访问本机代码">使用 jdk.foreign 访问本机代码</a><time datetime="2022-03-12T12:54:00.000Z" title="Created 2022-03-12 20:54:00">2022-03-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2017 - 2022 By Karlatemp</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">繁</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="false"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script></div></body></html>
